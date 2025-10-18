@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HexLens · 拾色镜 — 实时屏幕取色与配色助手</title>
+<meta name="description" content="HexLens — Live color picker from camera, web, and photos. See HEX/RGB/HSB/CMYK instantly, generate palettes, check contrast, and export tokens. 拾色镜：相机/网页/相册实时取色，秒得 HEX/RGB/HSB/CMYK，一键配色与对比度校验，导出多端代码/色卡。">
+<link rel="icon" href="favicon.ico">
+<style>
+:root{
+  --bg:#0B1220; --surface:#12182A; --text:#EEF2FA; --text2:#B8C1D9;
+  --blue:#7DA6FF; --green:#2ECC71; --gold:#FFD54F; --warn:#FF7043;
+  --divider:rgba(255,255,255,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Helvetica, Arial, Noto Sans, "PingFang SC","Hiragino Sans GB","Microsoft Yahei",sans-serif;}
+a{color:var(--blue);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:40px 24px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700}
+.brand img.icon{width:40px;height:40px;border-radius:12px}
+.nav-links{display:flex;gap:18px;align-items:center}
+.nav-links a{color:var(--text2);font-weight:600}
+.nav-links a:hover{color:var(--text)}
+.lang-switch{display:flex;gap:8px;background:var(--surface);border-radius:12px;padding:6px}
+.lang-switch button{all:unset;cursor:pointer;padding:6px 14px;border-radius:10px;color:var(--text2);font-weight:600}
+.lang-switch button.active{background:var(--blue);color:#0B1220}
+.hero{display:grid;grid-template-columns:1.1fr 0.9fr;gap:36px;align-items:center;margin-top:40px}
+.hero h1{font-size:40px;line-height:1.1;margin:0 0 16px}
+.hero p.lead{color:var(--text2);font-size:18px;margin:0 0 24px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.button{display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#0B1220;font-weight:700;
+  padding:14px 22px;border-radius:14px;box-shadow:0 10px 30px rgba(125,166,255,.25);}
+.button.ghost{background:transparent;color:var(--text);border:1px solid var(--divider)}
+.card{background:var(--surface);border-radius:20px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25);}
+.section{margin-top:80px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.tag{display:inline-block;padding:6px 10px;border-radius:8px;font-size:13px;background:rgba(125,166,255,.16);color:var(--blue)}
+.sample{width:100%;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);background:#0f1118;aspect-ratio:9/19.5;object-fit:cover}
+.footer{margin-top:80px;color:var(--text2);font-size:14px;border-top:1px solid var(--divider);padding:32px 0}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.gallery img{width:100%;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.35);background:#0f1118;aspect-ratio:9/19.5;object-fit:cover}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:#0f1118;border:1px solid var(--divider);color:var(--text2);font-size:14px}
+.iconrow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--divider);color:var(--text2);padding:10px 14px;border-radius:14px}
+@media (max-width:960px){ .hero{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="container">
+  <nav>
+    <div class="brand">
+      <img class="icon" src="hexlens_icon_128.png" alt="HexLens icon">
+      <span>HexLens · 拾色镜</span>
+    </div>
+    <div style="display:flex;gap:16px;align-items:center">
+      <div class="nav-links">
+        <a href="#features" data-en="Features" data-zh="功能"></a>
+        <a href="#screens" data-en="Screenshots" data-zh="界面"></a>
+        <a href="#privacy" data-en="Privacy" data-zh="隐私"></a>
+        <a href="#support" data-en="Support" data-zh="支持"></a>
+      </div>
+      <div class="lang-switch">
+        <button id="btn-en" class="active">English</button>
+        <button id="btn-zh">中文</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <h1 data-en="Pick colors live. Build palettes fast." data-zh="实时取色 · 智能配色 · 一键导出"></h1>
+      <p class="lead" data-en="Capture colors from camera, web pages, and photos. See HEX/RGB/HSB/CMYK instantly, generate complementary/analogous/triad palettes, check WCAG contrast, and export tokens to code."
+         data-zh="相机、网页与相册一键取色；秒得 HEX/RGB/HSB/CMYK；生成互补/类似/三色配色；支持 WCAG 对比度校验；一键导出多端代码与设计 Token。"></p>
+      <div class="cta">
+        <a href="https://apps.apple.com/app/idXXXXXXXXX" class="button" data-en="Download" data-zh="下载"></a>
+        <a href="#features" class="button ghost" data-en="Learn more" data-zh="了解功能"></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="section">
+    <h2 data-en="Core features" data-zh="核心功能"></h2>
+
+    <div class="grid-3" style="margin-top:24px">
+      <div class="card">
+        <div class="tag" data-en="Camera" data-zh="相机取色"></div>
+        <h3 style="margin:12px 0" data-en="Live picker with loupe" data-zh="实时取色 + 放大镜"></h3>
+        <p class="text2" data-en="Preview in real time with a precision loupe and average sampling to avoid single‑pixel noise."
+           data-zh="实时预览，支持放大镜与平均采样，避免单像素噪点带来的误差。"></p>
+      </div>
+      <div class="card">
+        <div class="tag" data-en="In‑app Browser" data-zh="内置浏览器"></div>
+        <h3 style="margin:12px 0" data-en="Pick from any web page" data-zh="网页任意取色"></h3>
+        <p class="text2" data-en="Hover to inspect and long‑press to copy HEX. Perfect for design reviews and UI audits."
+           data-zh="悬停查看、长按复制 HEX；适合设计评审与 UI 检查。"></p>
+      </div>
+      <div class="card">
+        <div class="tag" data-en="Photos" data-zh="相册"></div>
+        <h3 style="margin:12px 0" data-en="Pick from screenshots & photos" data-zh="截图/照片吸色"></h3>
+        <p class="text2" data-en="Import screenshots or photos and sample by point, area median, or edge‑locked cursor."
+           data-zh="导入截图或照片，支持点采样、区域中位数、边缘锁定取色。"></p>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:24px">
+      <div class="card">
+        <div class="tag" data-en="Formats" data-zh="多格式"></div>
+        <h3 style="margin:12px 0" data-en="HEX/RGB/HSB/CMYK" data-zh="HEX/RGB/HSB/CMYK"></h3>
+        <p class="text2" data-en="All values at once with one‑tap copy and rounding options."
+           data-zh="数值一次性展示，支持一键复制与小数位控制。"></p>
+      </div>
+      <div class="card">
+        <div class="tag" data-en="Palettes" data-zh="配色"></div>
+        <h3 style="margin:12px 0" data-en="Complementary · Analogous · Triad" data-zh="互补 · 类似 · 三色"></h3>
+        <p class="text2" data-en="Lock a base color, then fine‑tune offsets. Generate rectangle/split‑complementary too."
+           data-zh="锁定主色后微调偏移，还可生成矩形/分裂互补等方案。"></p>
+      </div>
+      <div class="card">
+        <div class="tag" data-en="Accessibility" data-zh="无障碍"></div>
+        <h3 style="margin:12px 0" data-en="WCAG contrast checks" data-zh="WCAG 对比度校验"></h3>
+        <p class="text2" data-en="Get pass/fail and suggestions to meet AA/AAA for text and UI elements."
+           data-zh="给出通过/未通过与替代建议，覆盖文本与 UI 元素 AA/AAA 等级。"></p>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:24px">
+      <div class="card">
+        <div class="tag" data-en="Pro" data-zh="专业模式"></div>
+        <h3 style="margin:12px 0" data-en="OKLCH/HCT & ΔE matching" data-zh="OKLCH/HCT 与 ΔE 匹配"></h3>
+        <p class="text2" data-en="Perceptual editing with OKLCH/HCT. Set a target and get haptic feedback as you match ΔE."
+           data-zh="在 OKLCH/HCT 感知均匀空间中编辑；设定目标色，接近阈值时触感提示 ΔE 匹配。"></p>
+      </div>
+      <div class="card">
+        <div class="tag" data-en="Export" data-zh="导出"></div>
+        <h3 style="margin:12px 0" data-en="Code & tokens" data-zh="代码与 Token"></h3>
+        <p class="text2" data-en="Export CSS variables, SwiftUI/UIColor, Android XML, Tailwind config, and ASE/ACO swatches."
+           data-zh="导出 CSS 变量、SwiftUI/UIColor、Android XML、Tailwind 配置以及 ASE/ACO 色卡。"></p>
+      </div>
+      <div class="card">
+        <div class="tag" data-en="Organizer" data-zh="管理"></div>
+        <h3 style="margin:12px 0" data-en="Palettes, tags & history" data-zh="色盘·标签·历史"></h3>
+        <p class="text2" data-en="Star favorites, tag and search, compare A/B, and share as PNG or JSON."
+           data-zh="收藏打星、标签与搜索、A/B 对比，支持导出 PNG/JSON 分享。"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens" class="section">
+    <h2 data-en="Screenshots" data-zh="界面预览"></h2>
+    <div class="gallery" style="margin-top:16px">
+      <img src="hex_en_1.png" data-en-src="hex_en_1.png" data-zh-src="hex_zh_1.png" alt="HexLens screenshot 1">
+      <img src="hex_en_2.png" data-en-src="hex_en_2.png" data-zh-src="hex_zh_2.png" alt="HexLens screenshot 2">
+      <img src="hex_en_3.png" data-en-src="hex_en_3.png" data-zh-src="hex_zh_3.png" alt="HexLens screenshot 3">
+      <img src="hex_en_4.png" data-en-src="hex_en_4.png" data-zh-src="hex_zh_4.png" alt="HexLens screenshot 4">
+    </div>
+  </section>
+  
+  <section class="section">
+    <div class="grid-2">
+      <div class="card">
+        <h2 id="privacy" data-en="Privacy" data-zh="隐私"></h2>
+        <p class="text2" data-en="HexLens is privacy‑first. Color processing happens on‑device. No account required."
+           data-zh="HexLens 以隐私为先。颜色计算在本地完成，无需注册账号。"></p>
+        <ul style="margin:12px 0 0 18px; color: var(--text2); line-height:1.7">
+          <li data-en="Camera and photo permissions are requested only when you use those features."
+              data-zh="仅在你使用相关功能时，才会请求相机与照片权限。"></li>
+          <li data-en="We do not track device identifiers or behavior analytics by default."
+              data-zh="默认不追踪设备标识与行为分析数据。"></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2 id="support" data-en="Support" data-zh="支持"></h2>
+        <p class="text2" data-en="Questions or feedback? Email us — we read every message."
+           data-zh="有问题或建议？给我们写邮件，我们会认真回复每一封来信。"></p>
+        <p><a href="mailto:freesysck@outlook.com">freesysck@outlook.com</a></p>
+        <p class="text2" data-en="Marketing & Privacy links below are placeholders — replace with your own."
+           data-zh="下方营销与隐私链接为占位示例，请替换为你的实际链接。"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="grid-2">
+      <div>
+        <strong>HexLens · 拾色镜</strong><br>
+        <span data-en="© 2025 HexLens Team. All rights reserved." data-zh="© 2025 HexLens 团队。保留所有权利。"></span>
+      </div>
+      <div style="text-align:right">
+        <a href="#privacy" data-en="Privacy Policy" data-zh="隐私政策"></a> ·
+        <a href="#support" data-en="Support" data-zh="支持"></a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+function swapLangImages(lang){
+  document.querySelectorAll("img[data-en-src]").forEach(img=>{
+    const src = img.getAttribute(lang==="zh" ? "data-zh-src" : "data-en-src");
+    if(src) img.setAttribute("src", src);
+  });
+}
+function setLang(lang){
+  document.querySelectorAll("[data-en]").forEach(el=>{
+    const text = el.getAttribute(lang === "zh" ? "data-zh" : "data-en");
+    if(text!==null){ el.textContent = text; }
+  });
+  document.getElementById("btn-en").classList.toggle("active", lang==="en");
+  document.getElementById("btn-zh").classList.toggle("active", lang==="zh");
+  localStorage.setItem("hexlens-lang", lang);
+  swapLangImages(lang);
+}
+document.getElementById("btn-en").onclick=()=>setLang("en");
+document.getElementById("btn-zh").onclick=()=>setLang("zh");
+const saved = localStorage.getItem("hexlens-lang") || (navigator.language.startsWith("zh")?"zh":"en");
+setLang(saved);
+</script>
+</body>
+</html>
